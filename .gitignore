@@ -11,3 +11,6 @@ wheels/
 
 database_settingup/malayalam_words.db
 database_settingup/
+
+output.txt
+synonyms_output.txt
