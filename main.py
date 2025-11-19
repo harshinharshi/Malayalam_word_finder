@@ -15,7 +15,7 @@ def read_root():
     return {
         "message": "Malayalam Word Finder API",
         "endpoints": {
-            "POST /search": "Search for words with matching endings",
+            "POST /search": "Search for words with matching endings or beginnings",
             "POST /synonyms": "Find words with similar meanings",
             "GET /download": "Download last search results",
             "GET /download-synonyms": "Download last synonym results"
@@ -24,13 +24,14 @@ def read_root():
 
 @app.post("/search", response_model=WordSearchResponse)
 def search_words(request: WordSearchRequest):
-    """Search for words with matching endings"""
+    """Search for words with matching patterns from start or end"""
     try:
         matching_words = word_service.find_matching_words(
             input_word=request.input_word,
             match_length=request.match_length,
             word_length=request.word_length,
-            operator=request.operator
+            operator=request.operator,
+            match_position=request.match_position  # New parameter
         )
         
         # Save results to file
@@ -43,6 +44,7 @@ def search_words(request: WordSearchRequest):
             match_length=request.match_length,
             word_length=request.word_length,
             operator=request.operator,
+            match_position=request.match_position,  # New field
             total_matches=len(matching_words),
             output_file=output_file
         )
@@ -103,7 +105,13 @@ def save_results_to_file(request: WordSearchRequest, results: list[str], filenam
     """Save search results to output.txt"""
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(f"Input word: {request.input_word}\n")
-        f.write(f"Matching last {request.match_length} letters\n")
+        
+        # Update message based on match position
+        if request.match_position == "start":
+            f.write(f"Matching first {request.match_length} letters\n")
+        else:
+            f.write(f"Matching last {request.match_length} letters\n")
+        
         if request.word_length:
             f.write(f"Word length: {request.operator} {request.word_length} characters\n")
         f.write(f"Total matches: {len(results)}\n\n")

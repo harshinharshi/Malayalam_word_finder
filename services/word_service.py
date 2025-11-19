@@ -21,20 +21,44 @@ class WordService:
         input_word: str, 
         match_length: int,
         word_length: int = None,
-        operator: str = "="
+        operator: str = "=",
+        match_position: str = "end"  # New parameter
     ) -> list[str]:
-        """Find words matching the criteria"""
+        """Find words matching the criteria from start or end
+        
+        Logic:
+        - Extract substring based on match_position
+        - If match_position="end": extract last N chars, find words ENDING with it
+        - If match_position="start": extract first N chars, find words STARTING with it
+        """
         
         # Validate match_length
         if match_length > len(input_word):
             match_length = len(input_word)
         
-        # Get the ending to match
-        ending = input_word[-match_length:]
+        # Extract pattern based on position
+        if match_position == "start":
+            # Extract first N characters
+            pattern = input_word[:match_length]
+        else:  # default to "end"
+            # Extract last N characters
+            pattern = input_word[-match_length:]
+        
         matching_words = []
         
         for word in self.all_words:
-            if word.endswith(ending) and word != input_word:
+            if word == input_word:
+                continue
+            
+            # Match based on position
+            if match_position == "start":
+                # Find words that START with the extracted pattern
+                matches = word.startswith(pattern)
+            else:
+                # Find words that END with the extracted pattern
+                matches = word.endswith(pattern)
+            
+            if matches:
                 if self._check_length_condition(len(word), word_length, operator):
                     matching_words.append(word)
         

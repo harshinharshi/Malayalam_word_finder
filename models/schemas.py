@@ -6,6 +6,7 @@ class WordSearchRequest(BaseModel):
     match_length: int
     word_length: Optional[int] = None
     operator: Optional[Literal["=", ">", "<", ">=", "<="]] = "="
+    match_position: Optional[Literal["start", "end"]] = "end"  # New parameter
 
 class WordSearchResponse(BaseModel):
     message: str
@@ -13,6 +14,7 @@ class WordSearchResponse(BaseModel):
     match_length: int
     word_length: Optional[int]
     operator: Optional[str]
+    match_position: str  # New field
     total_matches: int
     output_file: str
 
